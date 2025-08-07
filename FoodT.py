@@ -188,7 +188,8 @@ def food_items():
                 filename = None
                 if file and file.filename:
                     filename = secure_filename(file.filename)
-                    file.save(os.path.join('static/food_images', filename))
+                    file_path = os.path.join('static/food_images', filename)
+                    file.save(file_path)
                 if name and not FoodItem.query.filter_by(name=name).first():
                     db.session.add(FoodItem(name=name, category=category, rating=rating, image_filename=filename))
                     db.session.commit()
@@ -206,7 +207,16 @@ def food_items():
                 file = request.files.get('food_image')
                 if file and file.filename:
                     filename = secure_filename(file.filename)
-                    file.save(os.path.join('static/food_images', filename))
+                    file_path = os.path.join('static/food_images', filename)
+                    file.save(file_path)
+                    # Remove old image if exists and is different
+                    if edit_item.image_filename and edit_item.image_filename != filename:
+                        old_path = os.path.join('static/food_images', edit_item.image_filename)
+                        if os.path.exists(old_path):
+                            try:
+                                os.remove(old_path)
+                            except Exception:
+                                flash('Error deleting old image file.')
                     edit_item.image_filename = filename
                 db.session.commit()
                 flash('Food item updated!')
@@ -223,10 +233,12 @@ def food_items():
                 item = FoodItem.query.get(food_id)
                 if item:
                     if item.image_filename:
-                        try:
-                            os.remove(os.path.join('static/food_images', item.image_filename))
-                        except Exception:
-                            flash('Error deleting image file.')
+                        file_path = os.path.join('static/food_images', item.image_filename)
+                        if os.path.exists(file_path):
+                            try:
+                                os.remove(file_path)
+                            except Exception:
+                                flash('Error deleting image file.')
                     db.session.delete(item)
                     db.session.commit()
                     flash('Food item deleted!')
@@ -364,6 +376,22 @@ if __name__ == '__main__':
         db.create_all()  # Always ensure tables exist
         create_default_admin()  # Ensure default admin exists
     app.run(debug=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
