@@ -14,12 +14,14 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key_here'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///foodt.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB upload limit
 
 # Ensure static/food_images directory exists at startup
-STATIC_IMAGE_DIR = os.path.join('static', 'food_images')
+STATIC_IMAGE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'food_images')
 if not os.path.exists(STATIC_IMAGE_DIR):
     os.makedirs(STATIC_IMAGE_DIR)
+
+db = SQLAlchemy(app)
 
 # User model
 class User(db.Model):
@@ -184,9 +186,7 @@ def food_items():
         edit_id = request.args.get('edit_id', type=int)
         delete_id = request.args.get('delete_id', type=int)
         edit_item = FoodItem.query.get(edit_id) if edit_id else None
-        image_dir = os.path.join('static', 'food_images')
-        if not os.path.exists(image_dir):
-            os.makedirs(image_dir)
+        image_dir = STATIC_IMAGE_DIR
         # Handle delete via GET param (for delete link)
         if delete_id:
             item = FoodItem.query.get(delete_id)
@@ -196,7 +196,8 @@ def food_items():
                     if os.path.exists(file_path):
                         try:
                             os.remove(file_path)
-                        except Exception:
+                        except Exception as ex:
+                            app.logger.error(f"Error deleting image file: {ex}")
                             flash('Error deleting image file.')
                 db.session.delete(item)
                 db.session.commit()
@@ -215,7 +216,12 @@ def food_items():
                 if file and file.filename:
                     filename = secure_filename(file.filename)
                     file_path = os.path.join(image_dir, filename)
-                    file.save(file_path)
+                    try:
+                        file.save(file_path)
+                    except Exception as ex:
+                        app.logger.error(f"Error saving image file: {ex}")
+                        flash('Error saving image file.')
+                        filename = None
                 if name and not FoodItem.query.filter_by(name=name).first():
                     db.session.add(FoodItem(name=name, category=category, rating=rating, image_filename=filename))
                     db.session.commit()
@@ -234,16 +240,21 @@ def food_items():
                 if file and file.filename:
                     filename = secure_filename(file.filename)
                     file_path = os.path.join(image_dir, filename)
-                    file.save(file_path)
-                    # Remove old image if exists and is different
-                    if edit_item.image_filename and edit_item.image_filename != filename:
-                        old_path = os.path.join(image_dir, edit_item.image_filename)
-                        if os.path.exists(old_path):
-                            try:
-                                os.remove(old_path)
-                            except Exception:
-                                flash('Error deleting old image file.')
-                    edit_item.image_filename = filename
+                    try:
+                        file.save(file_path)
+                        # Remove old image if exists and is different
+                        if edit_item.image_filename and edit_item.image_filename != filename:
+                            old_path = os.path.join(image_dir, edit_item.image_filename)
+                            if os.path.exists(old_path):
+                                try:
+                                    os.remove(old_path)
+                                except Exception as ex:
+                                    app.logger.error(f"Error deleting old image file: {ex}")
+                                    flash('Error deleting old image file.')
+                        edit_item.image_filename = filename
+                    except Exception as ex:
+                        app.logger.error(f"Error saving image file: {ex}")
+                        flash('Error saving image file.')
                 db.session.commit()
                 flash('Food item updated!')
                 return redirect(url_for('food_items'))
@@ -263,7 +274,8 @@ def food_items():
                         if os.path.exists(file_path):
                             try:
                                 os.remove(file_path)
-                            except Exception:
+                            except Exception as ex:
+                                app.logger.error(f"Error deleting image file: {ex}")
                                 flash('Error deleting image file.')
                     db.session.delete(item)
                     db.session.commit()
