@@ -16,6 +16,11 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///foodt.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+# Ensure static/food_images directory exists at startup
+STATIC_IMAGE_DIR = os.path.join('static', 'food_images')
+if not os.path.exists(STATIC_IMAGE_DIR):
+    os.makedirs(STATIC_IMAGE_DIR)
+
 # User model
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
