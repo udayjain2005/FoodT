@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Register | FoodT{% endblock %}
+{% block content %}
+<h2>Register</h2>
+<form method="post">
+    <label for="username">Username</label>
+    <input type="text" name="username" id="username" required>
+    <label for="password">Password</label>
+    <input type="password" name="password" id="password" required>
+    <button type="submit">Register</button>
+</form>
+<p class="secondary-text">Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+{% for message in get_flashed_messages() %}
+    <div class="flash">{{ message }}</div>
+{% endfor %}
+{% endblock %}

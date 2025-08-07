@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard | FoodT{% endblock %}
+{% block content %}
+<h2>Welcome to FoodT!</h2>
+<p>This is your dashboard. Use the navigation to access your meal planner, food items, and profile.</p>
+<div style="max-width:800px;margin:auto;">
+    <canvas id="foodCategoryChart" style="margin-bottom:2rem;"></canvas>
+    <canvas id="foodRatingChart"></canvas>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+fetch("{{ url_for('dashboard_data') }}")
+    .then(response => response.json())
+    .then(data => {
+        // Category Pie Chart
+        new Chart(document.getElementById('foodCategoryChart'), {
+            type: 'pie',
+            data: {
+                labels: data.categories.labels,
+                datasets: [{
+                    data: data.categories.counts,
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#8BC34A', '#FF9800', '#9C27B0', '#00BCD4', '#E91E63'
+                    ]
+                }]
+            },
+            options: {
+                plugins: { legend: { position: 'bottom' } },
+                title: { display: true, text: 'Food Items by Category' }
+            }
+        });
+        // Rating Bar Chart
+        new Chart(document.getElementById('foodRatingChart'), {
+            type: 'bar',
+            data: {
+                labels: data.ratings.labels,
+                datasets: [{
+                    label: 'Average Rating',
+                    data: data.ratings.values,
+                    backgroundColor: '#36A2EB'
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                title: { display: true, text: 'Average Rating per Food Item' },
+                scales: { y: { beginAtZero: true, max: 5 } }
+            }
+        });
+    });
+</script>
+<a href="{{ url_for('logout') }}" class="btn">Logout</a>
+{% endblock %}

@@ -1,0 +1,301 @@
+body {
+    background: #0f1117;
+    color: #e6eaf1;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+}
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+.sidebar {
+    width: 220px;
+    background: #1a1c23;
+    border-right: 1px solid #2a2d38;
+    box-shadow: 2px 0 12px rgba(0,0,0,0.5);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+.sidebar-header {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 2rem 1.5rem 1rem 1.5rem;
+    border-bottom: 1px solid #2a2d38;
+}
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex: 1;
+}
+.sidebar ul li {
+    margin: 0;
+}
+.sidebar ul li a {
+    display: block;
+    color: #8f95a5;
+    padding: 1rem 1.5rem;
+    text-decoration: none;
+    border-left: 4px solid transparent;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.sidebar ul li a:hover, .sidebar ul li a.active {
+    background: #1e2028;
+    color: #fff;
+    border-left: 4px solid #3b82f6;
+}
+.container {
+    background: #1a1c23;
+    margin: 2.5rem 0 2.5rem 2.5rem;
+    max-width: 900px;
+    width: 100%;
+    padding: 2rem 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+    border: 1px solid #2a2d38;
+    flex: 1;
+    align-self: flex-start;
+}
+.meal-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+    background: #1a1c23;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.meal-table th, .meal-table td {
+    border: 1px solid #2a2d38;
+    padding: 0.5rem 1rem;
+    text-align: left;
+}
+.meal-table th {
+    background: #1e2028;
+    color: #e6eaf1;
+}
+.meal-table td {
+    color: #e6eaf1;
+}
+.btn-danger {
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.4rem 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 1rem;
+    transition: background 0.2s;
+}
+.btn-danger:hover {
+    background: #c0392b;
+}
+.profile-form {
+    margin-top: 2rem;
+}
+.profile-form label {
+    color: #e6eaf1;
+}
+.profile-form input[type="password"] {
+    background: #1e2028;
+    color: #e6eaf1;
+    border: 1px solid #2a2d38;
+    border-radius: 6px;
+    padding: 0.7rem 1rem;
+    margin-bottom: 1rem;
+    width: 100%;
+}
+.profile-form button {
+    background: #3b82f6;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.7rem 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 0.5rem;
+}
+.profile-form button:hover {
+    background: #2563eb;
+}
+.food-link {
+    color: #3b82f6;
+    text-decoration: underline;
+    cursor: pointer;
+    margin-left: 0.5rem;
+}
+.food-link:hover {
+    color: #2563eb;
+}
+.calendar {
+    width: 100%;
+    margin: 20px 0;
+}
+.calendar-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 4px;
+}
+.calendar-header {
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 8px;
+}
+.calendar-header div {
+    padding: 8px;
+    background: #2a2a2a;
+}
+.calendar-cell {
+    border: 1px solid #333;
+    padding: 8px;
+    min-height: 120px;
+    background: #1a1a1a;
+    position: relative;
+}
+.calendar-date {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #4a9eff;
+    position: absolute;
+    top: 4px;
+    left: 4px;
+}
+.meal-items {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.meal-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.9em;
+}
+.meal-label {
+    font-weight: bold;
+    color: #4a9eff;
+    margin-bottom: 4px;
+}
+.meal-img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin: 4px 0;
+}
+.empty {
+    background: #111;
+}
+
+.comments {
+    margin-top: 1rem;
+    padding-left: 0;
+    list-style: none;
+}
+.comments li {
+    background: #2a2d38;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem 1rem;
+    color: #e6eaf1;
+}
+.food-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+.food-card {
+    background: #23242b;
+    border: 1px solid #2a2d38;
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    position: relative;
+    min-height: 220px;
+}
+.food-card label {
+    font-size: 1.1rem;
+    color: #e6eaf1;
+    cursor: pointer;
+}
+.food-meta {
+    color: #8f95a5;
+    font-size: 0.95rem;
+    margin: 0.3rem 0 0.7rem 0;
+}
+.food-card .btn-danger {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+}
+.food-add-form input[type="text"] {
+    width: 200px;
+}
+.food-img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+.food-img-detail {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin: 1rem 0;
+    display: block;
+}
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+.switch input {display:none;}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #444;
+  transition: .4s;
+  border-radius: 22px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: #fff;
+  transition: .4s;
+  border-radius: 50%;
+}
+input:checked + .slider {
+  background-color: #4caf50;
+}
+input:checked + .slider:before {
+  transform: translateX(18px);
+}
+
+@media (max-width: 800px) {
+    .layout { flex-direction: column; }
+    .sidebar { width: 100%; flex-direction: row; border-right: none; border-bottom: 1px solid #2a2d38; }
+    .sidebar-header { display: none; }
+    .sidebar ul { display: flex; flex-direction: row; }
+    .sidebar ul li a { padding: 1rem; border-left: none; border-bottom: 4px solid transparent; }
+    .sidebar ul li a:hover, .sidebar ul li a.active { border-bottom: 4px solid #3b82f6; border-left: none; }
+    .container { margin: 0; border-radius: 0; }
+}

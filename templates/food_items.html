@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Food Items | FoodT{% endblock %}
+{% block content %}
+<h2>Food Items</h2>
+
+<form method="post" class="food-add-form" style="margin-bottom:1rem;display:flex;gap:1rem;align-items:center;" enctype="multipart/form-data">
+    <input type="text" name="food_name" placeholder="Add new food item" required>
+    <input type="text" name="category" placeholder="Category (e.g. Breakfast, Vegan, etc.)">
+    <input type="number" name="rating" placeholder="Rating (0-5)" min="0" max="5" step="0.1" required>
+    <input type="file" name="food_image" accept="image/*">
+    <button type="submit" name="action" value="add">Add</button>
+    <button type="submit" name="action" value="export" formaction="{{ url_for('export_food_items') }}">Export to Excel</button>
+</form>
+
+{% if edit_item %}
+<form method="post" enctype="multipart/form-data" class="food-edit-form" style="margin-bottom:1.5rem;">
+    <input type="hidden" name="action" value="edit">
+    <label for="name">Name:</label>
+    <input type="text" name="name" id="name" value="{{ edit_item.name }}" required>
+    <label for="calories">Calories:</label>
+    <input type="number" name="calories" id="calories" value="{{ edit_item.calories }}" min="0">
+    <label for="category">Category:</label>
+    <input type="text" name="category" id="category" value="{{ edit_item.category }}">
+    <label for="rating">Rating:</label>
+    <input type="number" name="rating" id="rating" value="{{ edit_item.rating }}" min="0" max="5" step="0.1" required>
+    <label for="food_image">Image:</label>
+    <input type="file" name="food_image" id="food_image" accept="image/*">
+    {% if edit_item.image_filename %}
+    <div><img src="{{ url_for('static', filename='food_images/' ~ edit_item.image_filename) }}" alt="{{ edit_item.name }}" class="food-img-detail"></div>
+    {% endif %}
+    <button type="submit">Save</button>
+    <a href="{{ url_for('food_items') }}" class="btn">Cancel</a>
+</form>
+{% endif %}
+
+<form method="post">
+    <input type="hidden" name="action" value="select">
+    <div class="food-grid">
+        {% for item in food_items %}
+        <div class="food-card" style="position:relative;min-height:220px;">
+            <span style="position:absolute;top:8px;right:8px;z-index:2;">
+                <label class="switch">
+                    <input type="checkbox" name="selected_food_ids" value="{{ item.id }}" {% if item.id in selected_ids %}checked{% endif %}>
+                    <span class="slider round"></span>
+                </label>
+            </span>
+            <span style="display:inline-block;width:100%">
+                {% if item.image_filename %}
+                <img src="{{ url_for('static', filename='food_images/' ~ item.image_filename) }}" alt="{{ item.name }}" class="food-img">
+                {% endif %}
+                <span class="food-name">{{ item.name }}</span>
+            </span>
+            <span class="food-meta">{{ item.calories }} cal</span>
+            <span class="food-meta">Category: {{ item.category or 'N/A' }}</span>
+            <span class="food-meta">Rating: {{ item.rating or 'N/A' }}</span>
+            <a href="{{ url_for('food_items', edit_id=item.id) }}" class="btn btn-edit" style="margin-top:8px;">Edit</a>
+            <a href="{{ url_for('food_items', delete_id=item.id) }}" class="btn btn-danger" style="position:absolute;bottom:8px;right:8px;" onclick="return confirm('Delete this item?')">Delete</a>
+        </div>
+        {% endfor %}
+    </div>
+    <button type="submit" style="margin-top:1rem;">Save Preferred Food Items</button>
+</form>
+
+{% for message in get_flashed_messages() %}
+<div class="flash">{{ message }}</div>
+{% endfor %}
+{% endblock %}

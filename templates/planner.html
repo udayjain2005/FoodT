@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Planner | FoodT{% endblock %}
+{% block content %}
+<h2>Meal Planner</h2>
+<form method="post">
+    <label for="month">Select Month:</label>
+    <input type="month" name="month" id="month" value="{{ month }}">
+    <button type="submit">Generate Plan</button>
+</form>
+{% if meals %}
+    <h3>Meal Plan for {{ month }}</h3>
+    <div class="calendar">
+        <div class="calendar-row calendar-header">
+            <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+        </div>
+        {% set ns = namespace(day_idx=0) %}
+        {% for week in range(6) if ns.day_idx < days|length %}
+            <div class="calendar-row">
+            {% for weekday in range(7) %}
+                {% if (week == 0 and weekday < first_day) or ns.day_idx >= days|length %}
+                    <div class="calendar-cell empty"></div>
+                {% else %}
+                    <div class="calendar-cell">
+                        <div class="calendar-date">{{ ns.day_idx + 1 }}</div>
+                        {% if ns.day_idx < meals|length %}
+                            {% set meal = meals[ns.day_idx] %}
+                            <div class="meal-items">
+                                <div class="meal-item">
+                                    <div class="meal-label">Lunch:</div>
+                                    {% for food in food_items %}
+                                        {% if food.name == meal.lunch and food.image_filename %}
+                                            <img src="{{ url_for('static', filename='food_images/' ~ food.image_filename) }}" 
+                                                 alt="{{ meal.lunch }}" class="meal-img">
+                                        {% endif %}
+                                    {% endfor %}
+                                    <div>{{ meal.lunch }}</div>
+                                </div>
+                                <div class="meal-item">
+                                    <div class="meal-label">Dinner:</div>
+                                    {% for food in food_items %}
+                                        {% if food.name == meal.dinner and food.image_filename %}
+                                            <img src="{{ url_for('static', filename='food_images/' ~ food.image_filename) }}" 
+                                                 alt="{{ meal.dinner }}" class="meal-img">
+                                        {% endif %}
+                                    {% endfor %}
+                                    <div>{{ meal.dinner }}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% set ns.day_idx = ns.day_idx + 1 %}
+                {% endif %}
+            {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="secondary-text">No plan for this month. Generate one above!</p>
+{% endif %}
+{% for message in get_flashed_messages() %}
+    <div class="flash">{{ message }}</div>
+{% endfor %}
+{% endblock %}

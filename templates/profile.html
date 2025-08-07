@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Profile | FoodT{% endblock %}
+{% block content %}
+<h2>Profile</h2>
+<p>Username: {{ user.username }}</p>
+<p>Account type: {% if user.is_admin %}Admin{% else %}User{% endif %}</p>
+<form method="post" class="profile-form">
+    <label for="new_password">Change Password</label>
+    <input type="password" name="new_password" id="new_password" placeholder="New password">
+    <button type="submit">Update Password</button>
+</form>
+{% for message in get_flashed_messages() %}
+    <div class="flash">{{ message }}</div>
+{% endfor %}
+{% endblock %}

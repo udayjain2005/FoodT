@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Food Details | FoodT{% endblock %}
+{% block content %}
+<h2>Edit Food Item: {{ food.name }}</h2>
+<form method="post" enctype="multipart/form-data" class="food-edit-form">
+    <label for="name">Name:</label>
+    <input type="text" name="name" id="name" value="{{ food.name }}" required>
+    <label for="calories">Calories:</label>
+    <input type="number" name="calories" id="calories" value="{{ food.calories }}" min="0">
+    <label for="food_image">Image:</label>
+    <input type="file" name="food_image" id="food_image" accept="image/*">
+    {% if food.image_filename %}
+        <div><img src="{{ url_for('static', filename='food_images/' ~ food.image_filename) }}" alt="{{ food.name }}" class="food-img-detail"></div>
+    {% endif %}
+    <button type="submit" name="action" value="edit">Save</button>
+</form>
+<h3>Comments</h3>
+<form method="post">
+    <textarea name="comment" rows="2" placeholder="Add a comment..." required></textarea>
+    <label for="comment_rating">Rating:</label>
+    <input type="number" name="comment_rating" id="comment_rating" min="0" max="5" step="0.1">
+    <button type="submit">Post</button>
+</form>
+<ul class="comments">
+    {% for c in comments %}
+    <li><b>{{ c.user.username }}</b> ({{ c.created_at.strftime('%Y-%m-%d %H:%M') }}): {{ c.content }} {% if c.rating is defined %}<span style="color:gold;">&#9733; {{ c.rating }}</span>{% endif %}</li>
+    {% endfor %}
+</ul>
+<a href="{{ url_for('food_items') }}" class="btn">Back to Food Items</a>
+{% for message in get_flashed_messages() %}
+    <div class="flash">{{ message }}</div>
+{% endfor %}
+{% endblock %}
