@@ -46,7 +46,7 @@
             </span>
             <span style="display:inline-block;width:100%">
                 {% if item.image_filename %}
-                <img src="{{ url_for('static', filename='food_images/' ~ item.image_filename) }}" alt="{{ item.name }}" class="food-img">
+                    <img src="/static/food_images/{{ item.image_filename }}" alt="{{ item.name }}" class="food-img">
                 {% endif %}
                 <span class="food-name">{{ item.name }}</span>
             </span>
