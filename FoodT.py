@@ -179,12 +179,15 @@ def food_items():
         edit_id = request.args.get('edit_id', type=int)
         delete_id = request.args.get('delete_id', type=int)
         edit_item = FoodItem.query.get(edit_id) if edit_id else None
+        image_dir = os.path.join('static', 'food_images')
+        if not os.path.exists(image_dir):
+            os.makedirs(image_dir)
         # Handle delete via GET param (for delete link)
         if delete_id:
             item = FoodItem.query.get(delete_id)
             if item:
                 if item.image_filename:
-                    file_path = os.path.join('static', 'food_images', item.image_filename)
+                    file_path = os.path.join(image_dir, item.image_filename)
                     if os.path.exists(file_path):
                         try:
                             os.remove(file_path)
@@ -206,7 +209,7 @@ def food_items():
                 filename = None
                 if file and file.filename:
                     filename = secure_filename(file.filename)
-                    file_path = os.path.join('static', 'food_images', filename)
+                    file_path = os.path.join(image_dir, filename)
                     file.save(file_path)
                 if name and not FoodItem.query.filter_by(name=name).first():
                     db.session.add(FoodItem(name=name, category=category, rating=rating, image_filename=filename))
@@ -225,11 +228,11 @@ def food_items():
                 file = request.files.get('food_image')
                 if file and file.filename:
                     filename = secure_filename(file.filename)
-                    file_path = os.path.join('static', 'food_images', filename)
+                    file_path = os.path.join(image_dir, filename)
                     file.save(file_path)
                     # Remove old image if exists and is different
                     if edit_item.image_filename and edit_item.image_filename != filename:
-                        old_path = os.path.join('static', 'food_images', edit_item.image_filename)
+                        old_path = os.path.join(image_dir, edit_item.image_filename)
                         if os.path.exists(old_path):
                             try:
                                 os.remove(old_path)
@@ -251,7 +254,7 @@ def food_items():
                 item = FoodItem.query.get(food_id)
                 if item:
                     if item.image_filename:
-                        file_path = os.path.join('static', 'food_images', item.image_filename)
+                        file_path = os.path.join(image_dir, item.image_filename)
                         if os.path.exists(file_path):
                             try:
                                 os.remove(file_path)
@@ -394,6 +397,70 @@ if __name__ == '__main__':
         db.create_all()  # Always ensure tables exist
         create_default_admin()  # Ensure default admin exists
     app.run(debug=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
