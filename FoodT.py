@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, session, flash, Response
+from flask import Flask, render_template, redirect, url_for, request, session, flash, Response, abort
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
@@ -171,67 +171,74 @@ def planner():
 
 @app.route('/food_items', methods=['GET', 'POST'])
 def food_items():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-    user = User.query.get(session['user_id'])
-    all_items = FoodItem.query.order_by(FoodItem.name).all()
-    edit_id = request.args.get('edit_id', type=int)
-    edit_item = FoodItem.query.get(edit_id) if edit_id else None
-    if request.method == 'POST':
-        action = request.form.get('action')
-        if action == 'add':
-            name = request.form.get('food_name', '').strip()
-            category = request.form.get('category', '').strip()
-            rating = float(request.form.get('rating', 0))
-            file = request.files.get('food_image')
-            filename = None
-            if file and file.filename:
-                filename = secure_filename(file.filename)
-                file.save(os.path.join('static/food_images', filename))
-            if name and not FoodItem.query.filter_by(name=name).first():
-                db.session.add(FoodItem(name=name, category=category, rating=rating, image_filename=filename))
+    try:
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+        user = User.query.get(session['user_id'])
+        all_items = FoodItem.query.order_by(FoodItem.name).all()
+        edit_id = request.args.get('edit_id', type=int)
+        edit_item = FoodItem.query.get(edit_id) if edit_id else None
+        if request.method == 'POST':
+            action = request.form.get('action')
+            if action == 'add':
+                name = request.form.get('food_name', '').strip()
+                category = request.form.get('category', '').strip()
+                rating = float(request.form.get('rating', 0))
+                file = request.files.get('food_image')
+                filename = None
+                if file and file.filename:
+                    filename = secure_filename(file.filename)
+                    file.save(os.path.join('static/food_images', filename))
+                if name and not FoodItem.query.filter_by(name=name).first():
+                    db.session.add(FoodItem(name=name, category=category, rating=rating, image_filename=filename))
+                    db.session.commit()
+                    flash('Food item added!')
+                else:
+                    flash('Item exists or invalid.')
+                return redirect(url_for('food_items'))
+            elif action == 'edit' and edit_id:
+                new_name = request.form.get('name', '').strip()
+                if new_name and (new_name == edit_item.name or not FoodItem.query.filter_by(name=new_name).first()):
+                    edit_item.name = new_name
+                edit_item.calories = int(request.form['calories'])
+                edit_item.category = request.form.get('category', '').strip()
+                edit_item.rating = float(request.form.get('rating', edit_item.rating))
+                file = request.files.get('food_image')
+                if file and file.filename:
+                    filename = secure_filename(file.filename)
+                    file.save(os.path.join('static/food_images', filename))
+                    edit_item.image_filename = filename
                 db.session.commit()
-                flash('Food item added!')
-            else:
-                flash('Item exists or invalid.')
-            return redirect(url_for('food_items'))
-        elif action == 'edit' and edit_id:
-            new_name = request.form.get('name', '').strip()
-            if new_name and (new_name == edit_item.name or not FoodItem.query.filter_by(name=new_name).first()):
-                edit_item.name = new_name
-            edit_item.calories = int(request.form['calories'])
-            edit_item.category = request.form.get('category', '').strip()
-            edit_item.rating = float(request.form.get('rating', edit_item.rating))
-            file = request.files.get('food_image')
-            if file and file.filename:
-                filename = secure_filename(file.filename)
-                file.save(os.path.join('static/food_images', filename))
-                edit_item.image_filename = filename
-            db.session.commit()
-            flash('Food item updated!')
-            return redirect(url_for('food_items'))
-        elif action == 'select':
-            selected_ids = request.form.getlist('selected_food_ids')
-            selected_items = FoodItem.query.filter(FoodItem.id.in_(selected_ids)).all()
-            user.food_items = selected_items
-            db.session.commit()
-            flash('Preferred food items saved!')
-            return redirect(url_for('food_items'))
-        elif 'delete_id' in request.form:
-            food_id = int(request.form['delete_id'])
-            item = FoodItem.query.get(food_id)
-            if item:
-                if item.image_filename:
-                    try:
-                        os.remove(os.path.join('static/food_images', item.image_filename))
-                    except Exception:
-                        pass
-                db.session.delete(item)
+                flash('Food item updated!')
+                return redirect(url_for('food_items'))
+            elif action == 'select':
+                selected_ids = request.form.getlist('selected_food_ids')
+                selected_items = FoodItem.query.filter(FoodItem.id.in_(selected_ids)).all()
+                user.food_items = selected_items
                 db.session.commit()
-                flash('Food item deleted!')
-            return redirect(url_for('food_items'))
-    selected_ids = [item.id for item in getattr(user, 'food_items', [])]
-    return render_template('food_items.html', food_items=all_items, selected_ids=selected_ids, edit_item=edit_item)
+                flash('Preferred food items saved!')
+                return redirect(url_for('food_items'))
+            elif 'delete_id' in request.form:
+                food_id = int(request.form['delete_id'])
+                item = FoodItem.query.get(food_id)
+                if item:
+                    if item.image_filename:
+                        try:
+                            os.remove(os.path.join('static/food_images', item.image_filename))
+                        except Exception:
+                            flash('Error deleting image file.')
+                    db.session.delete(item)
+                    db.session.commit()
+                    flash('Food item deleted!')
+                else:
+                    flash('Food item not found.')
+                return redirect(url_for('food_items'))
+        selected_ids = [item.id for item in getattr(user, 'food_items', [])]
+        return render_template('food_items.html', food_items=all_items, selected_ids=selected_ids, edit_item=edit_item)
+    except Exception as e:
+        app.logger.error(f"Error in food_items: {e}")
+        flash('An error occurred. Please try again.')
+        return redirect(url_for('dashboard'))
 
 @app.route('/export_food_items', methods=['POST'])
 def export_food_items():
@@ -343,11 +350,28 @@ def dashboard_data():
         mimetype='application/json'
     )
 
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    db.session.rollback()
+    return render_template('500.html'), 500
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Always ensure tables exist
         create_default_admin()  # Ensure default admin exists
     app.run(debug=True)
+
+
+
+
+
+
+
+
 
 
 
